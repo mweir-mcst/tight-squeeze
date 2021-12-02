@@ -1,5 +1,5 @@
 import kaboom, {AreaComp, ColorComp, GameObj, OpacityComp, OriginComp, PosComp, ScaleComp, SpriteComp} from "kaboom";
-import Global, {Level, LevelInitInfo} from "./global";
+import {Level, LevelInitInfo} from "./global";
 
 import level1 from "../levels/level1.json";
 import level2 from "../levels/level2.json";
@@ -27,7 +27,7 @@ let hasWon = false;
 let music;
 let mouse = vec2();
 
-Global.init(mouse);
+Level.init(mouse);
 
 async function transition(overlay: GameObj<OpacityComp>, fadeIn: boolean, change = 0.1, count = 10, each: (i: number) => void = () => {}) {
     for (let i = 0; i < count; i++) {

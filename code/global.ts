@@ -1,6 +1,19 @@
 import {AreaComp, ColorComp, GameObj, PosComp, SolidComp, SpriteComp, Vec2} from "kaboom";
 
-export default class Global {
+export class Level {
+    options: LevelInitInfo;
+    onComplete: () => void;
+    onReset: () => void;
+
+    cellSize: number;
+
+    hasWon: boolean;
+    moving: boolean;
+
+    goal: GameObj<PosComp|AreaComp>;
+    block: GameObj<SpriteComp|AreaComp|SolidComp|PosComp>;
+    player: GameObj<SpriteComp|AreaComp|SolidComp|PosComp>;
+
     static init(mouse: Vec2) {
         addEventListener("mousemove", e => {
             mouse.x = Math.floor((e.x - canvas.getBoundingClientRect().x) / canvas.getBoundingClientRect().width * 1000);
@@ -17,28 +30,34 @@ export default class Global {
         loadSprite("grid", "sprites/grid.png").catch(console.error);
         loadSprite("switch", "sprites/switch.png").catch(console.error);
     }
-}
 
-export class Level {
-    hasWon: boolean;
-
-    constructor(options: LevelInitInfo, onComplete: () => void, onReset: () => void) {
-        const cellSize = Math.floor(2000 / options.size) / 2;
-        this.hasWon = false;
-        let moving = false;
-
-        // Add grid
-        for (let i = 0; i < options.size; i++) {
-            for (let j = 0; j < options.size; j++) {
+    static addGrid(size: number, goal?: Vec2) {
+        let cSize = Math.floor(2000 / size) / 2;
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
                 let grid: (SpriteComp|PosComp|ColorComp|string)[] = [
-                    sprite(`grid`, {width: cellSize, height: cellSize, quad: quad(i % 4 * 0.25, j % 4 * 0.25, 0.25, 0.25)}),
-                    pos(i * cellSize, j * cellSize),
+                    sprite(`grid`, {width: cSize, height: cSize, quad: quad(i % 4 * 0.25, j % 4 * 0.25, 0.25, 0.25)}),
+                    pos(i * cSize, j * cSize),
                     "grid"
                 ];
-                if (i >= options.goalX && i <= options.goalX + 4 && j >= options.goalY && j <= options.goalY + 4) grid.push(color(100, 100, 100));
+                if (goal && i >= goal.x && i <= goal.x + 4 && j >= goal.y && j <= goal.y + 4) grid.push(color(100, 100, 100));
                 add(grid);
             }
         }
+    }
+
+    constructor(options: LevelInitInfo, onComplete: () => void, onReset: () => void) {
+        this.options = options;
+        this.onComplete = onComplete;
+        this.onReset = onReset;
+
+        this.cellSize = Math.floor(2000 / this.options.size) / 2;
+
+        this.hasWon = false;
+        this.moving = false;
+
+        // Add grid
+        Level.addGrid(options.size, vec2(options.goalX, options.goalY));
 
         // Add edges
         add([
@@ -63,37 +82,37 @@ export class Level {
         ]);
 
         // Add goal
-        const goal = add([
-            pos(options.goalX * cellSize, options.goalY * cellSize),
-            area({width: cellSize * 5, height: cellSize * 5}),
+        this.goal = add([
+            pos(options.goalX * this.cellSize, options.goalY * this.cellSize),
+            area({width: this.cellSize * 5, height: this.cellSize * 5}),
             "goal"
         ]);
 
         // Add switches
         for (let i = 0; i < options.switches.length; i++) {
             add([
-                sprite("switch", {width: cellSize, height: cellSize}),
-                pos(options.switches[i].x * cellSize, options.switches[i].y * cellSize),
-                area({width: cellSize, height: cellSize}),
+                sprite("switch", {width: this.cellSize, height: this.cellSize}),
+                pos(options.switches[i].x * this.cellSize, options.switches[i].y * this.cellSize),
+                area({width: this.cellSize, height: this.cellSize}),
                 "switch"
             ]);
         }
 
         // Add block
-        const block = add([
-            sprite("block", {width: cellSize * 5, height: cellSize * 5}),
-            area({width: cellSize * 5 - 2, height: cellSize * 5 - 2}),
+        this.block = add([
+            sprite("block", {width: this.cellSize * 5, height: this.cellSize * 5}),
+            area({width: this.cellSize * 5 - 2, height: this.cellSize * 5 - 2}),
             solid(),
-            pos(options.blockX * cellSize + 1, options.blockY * cellSize + 1),
+            pos(options.blockX * this.cellSize + 1, options.blockY * this.cellSize + 1),
             "block"
         ]);
 
         // Add player
-        const player = add([
-            sprite("player", {width: cellSize, height: cellSize, }),
-            area({width: cellSize - 2, height: cellSize - 2}),
+        this.player = add([
+            sprite("player", {width: this.cellSize, height: this.cellSize, }),
+            area({width: this.cellSize - 2, height: this.cellSize - 2}),
             solid(),
-            pos(options.playerX * cellSize + 1, options.playerY * cellSize + 1),
+            pos(options.playerX * this.cellSize + 1, options.playerY * this.cellSize + 1),
             "player"
         ]);
 
@@ -101,29 +120,29 @@ export class Level {
         for (let i = 0; i < options.walls.length; i++) {
             let wall = options.walls[i];
             add([
-                pos(wall.x * cellSize - 1, wall.y * cellSize - 1),
-                area({width: wall.dir === "vertical" ? 2 : wall.length * cellSize + 2, height: wall.dir === "vertical" ? wall.length * cellSize + 2 : 2}),
+                pos(wall.x * this.cellSize - 1, wall.y * this.cellSize - 1),
+                area({width: wall.dir === "vertical" ? 2 : wall.length * this.cellSize + 2, height: wall.dir === "vertical" ? wall.length * this.cellSize + 2 : 2}),
                 solid(),
                 "wallCollision"
             ]);
             add([
-                rect(wall.dir === "vertical" ? 6 : wall.length * cellSize, wall.dir === "vertical" ? wall.length * cellSize : 6),
-                pos(wall.dir === "vertical" ? wall.x * cellSize - 3 : wall.x * cellSize, wall.dir === "vertical" ? wall.y * cellSize : wall.y * cellSize - 3),
+                rect(wall.dir === "vertical" ? 6 : wall.length * this.cellSize, wall.dir === "vertical" ? wall.length * this.cellSize : 6),
+                pos(wall.dir === "vertical" ? wall.x * this.cellSize - 3 : wall.x * this.cellSize, wall.dir === "vertical" ? wall.y * this.cellSize : wall.y * this.cellSize - 3),
                 color(0, 255, 0)
             ])
         }
         for (let i = 0; i < options.switchWalls.length; i++) {
             let wall = options.switchWalls[i];
             add([
-                pos(wall.x * cellSize - 1, wall.y * cellSize - 1),
-                area({width: wall.dir === "vertical" ? 2 : wall.length * cellSize + 2, height: wall.dir === "vertical" ? wall.length * cellSize + 2 : 2}),
+                pos(wall.x * this.cellSize - 1, wall.y * this.cellSize - 1),
+                area({width: wall.dir === "vertical" ? 2 : wall.length * this.cellSize + 2, height: wall.dir === "vertical" ? wall.length * this.cellSize + 2 : 2}),
                 solid(),
                 color(0, 0, 255),
                 "switchWallCollision"
             ]);
             add([
-                rect(wall.dir === "vertical" ? 6 : wall.length * cellSize, wall.dir === "vertical" ? wall.length * cellSize : 6),
-                pos(wall.dir === "vertical" ? wall.x * cellSize - 3 : wall.x * cellSize, wall.dir === "vertical" ? wall.y * cellSize : wall.y * cellSize - 3),
+                rect(wall.dir === "vertical" ? 6 : wall.length * this.cellSize, wall.dir === "vertical" ? wall.length * this.cellSize : 6),
+                pos(wall.dir === "vertical" ? wall.x * this.cellSize - 3 : wall.x * this.cellSize, wall.dir === "vertical" ? wall.y * this.cellSize : wall.y * this.cellSize - 3),
                 color(0, 0, 255),
                 opacity(1),
                 "switchWallModel"
