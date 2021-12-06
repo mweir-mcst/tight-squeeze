@@ -1,6 +1,6 @@
 import "bootstrap";
 import kaboom, {AreaComp, CircleComp, ColorComp, GameObj, OriginComp, PosComp} from "kaboom";
-import Global, {Level, LevelInitInfo, SwitchInitInfo, WallInitInfo} from "./global";
+import {Level, LevelInitInfo, SwitchInitInfo, WallInitInfo} from "./global";
 
 const kbm = kaboom({
     width: 1000,
@@ -18,7 +18,7 @@ const removeObjectButton: HTMLButtonElement = document.querySelector("#remove-ob
 let mouse = vec2();
 let editing = true;
 
-Global.init(mouse);
+Level.init(mouse);
 
 let currentLevelData: LevelInitInfo = {
     playerX: 0,

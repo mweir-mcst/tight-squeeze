@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="63ba79d3-4a19-408f-9b21-57390f269be1" name="Changes" comment="no more pushing the block through walls" />
+    <list default="true" id="63ba79d3-4a19-408f-9b21-57390f269be1" name="Changes" comment="no more pushing the block through walls">
+      <change beforePath="$PROJECT_DIR$/code/global.ts" beforeDir="false" afterPath="$PROJECT_DIR$/code/global.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -26,7 +28,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="RepeatGitHub_main" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -60,7 +62,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="javascript.nodejs.core.library.configured.version" value="17.1.0" />
+    <property name="javascript.nodejs.core.library.configured.version" value="17.2.0" />
     <property name="javascript.nodejs.core.library.typings.version" value="16.11.11" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/levels" />
     <property name="list.type.of.created.stylesheet" value="CSS" />
@@ -73,8 +75,8 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\compsci\WebstormProjects\tight-squeeze" />
       <recent name="C:\Users\compsci\WebstormProjects\tight-squeeze\public" />
+      <recent name="C:\Users\compsci\WebstormProjects\tight-squeeze" />
     </key>
   </component>
   <component name="RunManager">
@@ -125,6 +127,7 @@
       <workItem from="1637586434939" duration="3974000" />
       <workItem from="1637760125986" duration="448000" />
       <workItem from="1638279105684" duration="2460000" />
+      <workItem from="1638453303813" duration="709000" />
     </task>
     <task id="LOCAL-00001" summary="Add project files">
       <created>1635510508333</created>
