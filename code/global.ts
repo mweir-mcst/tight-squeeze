@@ -149,85 +149,22 @@ export class Level {
             ]);
         }
 
-        function wallAt(x: number, y: number): boolean {
-            // @ts-ignore
-            let walls: GameObj<AreaComp | SolidComp>[] = get("wallCollision").concat(get("switchWallCollision"));
-            for (let wall of walls) {
-                if (wall.hasPoint(vec2(x, y)) && wall.solid) return true;
-            }
-            return false;
-        }
-
-        // Directional movement
-        keyPress(["left", "a"], async () => {
-            if (this.hasWon || moving) return;
-            moving = true;
-            let sound = play("move");
-            for (let i = 0; i < 4; i++) {
-                if (player.pos.x === block.pos.x + cellSize * 5 && player.pos.y === block.pos.y + cellSize * 2 && !wallAt(player.pos.x - 1, player.pos.y)) block.moveBy(cellSize / -4, 0);
-                player.moveBy(cellSize / -4, 0);
-                await wait(0);
-            }
-            player.pos.x++;
-            if (player.pos.x % cellSize !== 1) player.pos.x = player.pos.x - player.pos.x % cellSize + 1;
-            sound.stop();
-            moving = false;
-        });
-
-        keyPress(["right", "d"], async () => {
-            if (this.hasWon || moving) return;
-            moving = true;
-            let sound = play("move");
-            for (let i = 0; i < 4; i++) {
-                if (player.pos.x === block.pos.x - cellSize && player.pos.y === block.pos.y + cellSize * 2 && !wallAt(player.pos.x + cellSize - 1, player.pos.y)) block.moveBy(cellSize / 4, 0);
-                player.moveBy(cellSize / 4, 0);
-                await wait(0);
-            }
-            if (player.pos.x % cellSize !== 1) player.pos.x = player.pos.x - player.pos.x % cellSize + 1;
-            sound.stop();
-            moving = false;
-        });
-
-        keyPress(["up", "w"], async () => {
-            if (this.hasWon || moving) return;
-            moving = true;
-            let sound = play("move");
-            for (let i = 0; i < 4; i++) {
-                if (player.pos.x === block.pos.x + cellSize * 2 && player.pos.y === block.pos.y + cellSize * 5 && !wallAt(player.pos.x, player.pos.y - 1)) block.moveBy(0, cellSize / -4);
-                player.moveBy(0, cellSize / -4);
-                await wait(0);
-            }
-            player.pos.y++;
-            if (player.pos.y % cellSize !== 1) player.pos.y = player.pos.y - player.pos.y % cellSize + 1;
-            sound.stop();
-            moving = false;
-        });
-
-        keyPress(["down", "s"], async () => {
-            if (this.hasWon || moving) return;
-            moving = true;
-            let sound = play("move");
-            for (let i = 0; i < 4; i++) {
-                if (player.pos.x === block.pos.x + cellSize * 2 && player.pos.y === block.pos.y - cellSize && !wallAt(player.pos.x, player.pos.y + cellSize - 1)) block.moveBy(0, cellSize / 4);
-                player.moveBy(0, cellSize / 4);
-                await wait(0);
-            }
-            if (player.pos.y % cellSize !== 1) player.pos.y = player.pos.y - player.pos.y % cellSize + 1;
-            sound.stop();
-            moving = false;
-        });
+        keyPress(["left", "a"], this.handleMovement("left"));
+        keyPress(["right", "d"], this.handleMovement("right"));
+        keyPress(["up", "w"], this.handleMovement("up"));
+        keyPress(["down", "s"], this.handleMovement("down"));
 
         // Reset on "R"
         keyPress("r", async () => {
             onReset();
         });
 
-        block.collides("switch", () => {
+        this.block.collides("switch", () => {
             play("switch");
         })
 
         action(async () => {
-            if (goal.pos.x === block.pos.x - 1 && goal.pos.y === block.pos.y - 1 && !this.hasWon) {
+            if (this.goal.pos.x === this.block.pos.x - 1 && this.goal.pos.y === this.block.pos.y - 1 && !this.hasWon) {
                 this.hasWon = true;
                 every("grid", i => i.color = {r: 255, g: 255, b: 0});
                 play("finish");
@@ -235,7 +172,7 @@ export class Level {
                 onComplete();
                 this.hasWon = false;
             }
-            if (get("switch").find((switchObj: GameObj<AreaComp>) => switchObj.isTouching(block))) {
+            if (get("switch").find((switchObj: GameObj<AreaComp>) => switchObj.isTouching(this.block))) {
                 every("switchWallCollision", i => i.solid = false);
                 every("switchWallModel", i => i.opacity = 0.5);
             } else {
@@ -243,6 +180,61 @@ export class Level {
                 every("switchWallModel", i => i.opacity = 1);
             }
         })
+    }
+
+    wallAt(x: number, y: number): boolean {
+        // @ts-ignore
+        let walls: GameObj<AreaComp | SolidComp>[] = get("wallCollision").concat(get("switchWallCollision"));
+        for (let wall of walls) {
+            if (wall.hasPoint(vec2(x, y)) && wall.solid) return true;
+        }
+        return false;
+    }
+
+    handleMovement(direction: "left" | "right" | "up" | "down"): () => Promise<void> {
+        return async () => {
+            if (this.hasWon || this.moving) return;
+            this.moving = true;
+            let sound = play("move");
+
+            for (let i = 0; i < 4; i++) {
+                switch (direction) {
+                    case "left":
+                        if (this.player.pos.x === this.block.pos.x + this.cellSize * 5 && this.player.pos.y === this.block.pos.y + this.cellSize * 2 && !this.wallAt(this.player.pos.x - 1, this.player.pos.y)) this.block.moveBy(this.cellSize / -4, 0);
+                        this.player.moveBy(this.cellSize / -4, 0);
+                        break;
+                    case "right":
+                        if (this.player.pos.x === this.block.pos.x - this.cellSize && this.player.pos.y === this.block.pos.y + this.cellSize * 2 && !this.wallAt(this.player.pos.x + this.cellSize - 1, this.player.pos.y)) this.block.moveBy(this.cellSize / 4, 0);
+                        this.player.moveBy(this.cellSize / 4, 0);
+                        break;
+                    case "up":
+                        if (this.player.pos.x === this.block.pos.x + this.cellSize * 2 && this.player.pos.y === this.block.pos.y + this.cellSize * 5 && !this.wallAt(this.player.pos.x, this.player.pos.y - 1)) this.block.moveBy(0, this.cellSize / -4);
+                        this.player.moveBy(0, this.cellSize / -4);
+                        break;
+                    case "down":
+                        if (this.player.pos.x === this.block.pos.x + this.cellSize * 2 && this.player.pos.y === this.block.pos.y - this.cellSize && !this.wallAt(this.player.pos.x, this.player.pos.y + this.cellSize - 1)) this.block.moveBy(0, this.cellSize / 4);
+                        this.player.moveBy(0, this.cellSize / 4);
+                        break;
+                }
+                await wait(0);
+            }
+
+            switch (direction) {
+                case "left":
+                    this.player.pos.x++;
+                case "right":
+                    if (this.player.pos.x % this.cellSize !== 1) this.player.pos.x = this.player.pos.x - this.player.pos.x % this.cellSize + 1;
+                    break;
+                case "up":
+                    this.player.pos.y++;
+                case "down":
+                    if (this.player.pos.y % this.cellSize !== 1) this.player.pos.y = this.player.pos.y - this.player.pos.y % this.cellSize + 1;
+                    break;
+            }
+
+            sound.stop();
+            this.moving = false;
+        }
     }
 }
 
