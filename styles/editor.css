@@ -1,0 +1,12 @@
+canvas {
+    max-width: 50vw;
+    max-height: 100vh;
+    position: fixed;
+    left: 50vw;
+    transform: translateX(-50%);
+}
+
+div#editor-buttons {
+    position: fixed;
+    left: 75vw;
+}
