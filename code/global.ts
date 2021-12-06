@@ -14,6 +14,8 @@ export class Level {
     block: GameObj<SpriteComp|AreaComp|SolidComp|PosComp>;
     player: GameObj<SpriteComp|AreaComp|SolidComp|PosComp>;
 
+    moves: MoveInfo[] = [];
+
     static init(mouse: Vec2) {
         addEventListener("mousemove", e => {
             mouse.x = Math.floor((e.x - canvas.getBoundingClientRect().x) / canvas.getBoundingClientRect().width * 1000);
@@ -159,6 +161,14 @@ export class Level {
             onReset();
         });
 
+        // Undo on "U"
+        keyPress("u", async () => {
+            if (this.hasWon) return;
+            let move = this.moves.pop();
+            this.player.moveTo(move.player);
+            this.block.moveTo(move.block);
+        });
+
         this.block.collides("switch", () => {
             play("switch");
         })
@@ -196,6 +206,11 @@ export class Level {
             if (this.hasWon || this.moving) return;
             this.moving = true;
             let sound = play("move");
+
+            this.moves.push({
+                player: this.player.pos.clone(),
+                block: this.block.pos.clone()
+            });
 
             for (let i = 0; i < 4; i++) {
                 switch (direction) {
@@ -261,4 +276,9 @@ export type LevelInitInfo = {
     switchWalls: WallInitInfo[],
     switches: SwitchInitInfo[],
     size: number
+}
+
+export type MoveInfo = {
+    player: Vec2,
+    block: Vec2
 }

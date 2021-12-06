@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="63ba79d3-4a19-408f-9b21-57390f269be1" name="Changes" comment="no more pushing the block through walls">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/code/global.ts" beforeDir="false" afterPath="$PROJECT_DIR$/code/global.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -212,7 +213,8 @@
     <MESSAGE value="background color &gt; black" />
     <MESSAGE value="credit charlie in package file" />
     <MESSAGE value="no more pushing the block through walls" />
-    <option name="LAST_COMMIT_MESSAGE" value="no more pushing the block through walls" />
+    <MESSAGE value="a bit of refactoring" />
+    <option name="LAST_COMMIT_MESSAGE" value="a bit of refactoring" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
